@@ -1,0 +1,7 @@
+Hey team!
+
+Contributors:
+- Dr-Seagraves (Repository Owner)
+- QM 2023 Capstone Team Members
+
+This file is located in the tests folder of the qm2023-capstone project.
