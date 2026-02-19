@@ -1,0 +1,4 @@
+fredapi
+pandas
+python-dotenv
+requests

@@ -1,0 +1,43 @@
+# Environment variables (contains sensitive API keys)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data files (keep directory structure but not large data files)
+data/raw/*.csv
+data/raw/*.xlsx
+data/raw/*.xls
+data/processed/*.csv
+data/processed/*.xlsx
+data/final/*.csv
+data/final/*.xlsx
+*.parquet
+*.feather
+
+# Results (optional - uncomment if you don't want to commit results)
+# results/figures/*.png
+# results/figures/*.jpg
+# results/tables/*.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

@@ -25,26 +25,25 @@ Team Members and Roles
 
 Research Question: 
 
-> What is driving the divergence between different asset classes (cash, stocks, bonds, gold, and real estate)? How well can economic data predict the performance of these asset classes? How do the variable's coefficients vary over time (ie 5 year stretches)? How can pricing of assets in terms of alternative assets affect how we view them (ie S&P 500 in gold terms vs in USD)?
+> What is driving the divergence between different asset classes (cash, stocks, bonds, gold, crypto, and real estate)? How well can economic data predict the performance of these asset classes? How do the variable's coefficients vary over time (ie 5 year stretches)? How can pricing of assets in terms of alternative assets affect how we view them (ie S&P 500 in gold terms vs in USD)?
 
 Dataset Overview:
 
 > Primary Data:
 
     Stocks (S&P 500)
-    Bonds (10 year treasury)
     Real Estate (Case-Shiller home price index)
     Gold (Gold spot price)
+    Bitcoin (Coinbase)
 
 > Supplementary Data:
 
     Monetary Policy (M1, M2)
     Interest rates (Federal funds rate, Real rates, Yield curve slope)
-    Inflation (CPE, PCI)
+    Inflation (CPI, PCE)
     Economic Activity (US GDP, Unemployment rate)
-    Credit Conditions (Mortgage rates, BBB - treasury spread)
-    Risk (VIX, Economic policy uncertainty index, DXY)
-    Market Sentiment (Consumer confidence index, Michigan consumer sentiment index)
-
+    Credit Conditions (BBB - treasury spread)
+    Risk (VIX, Economic policy uncertainty index)
+    Market Sentiment (Michigan consumer sentiment index)
 
 
