@@ -18,14 +18,13 @@ Semester-long capstone for Statistics II: Data Analytics.
 Run `python code/config_paths.py` to verify paths.
 
 Team Members and Roles
-> Sam Weber (idk)
-> Brett
-> Anthony
-
+> Sam Weber (econometrics)
+> Brett (coding)
+> Anthony (analysis)
 
 Research Question: 
 
-> What is driving the divergence between different asset classes (cash, stocks, bonds, gold, crypto, and real estate)? How well can economic data predict the performance of these asset classes? How do the variable's coefficients vary over time (ie 5 year stretches)? How can pricing of assets in terms of alternative assets affect how we view them (ie S&P 500 in gold terms vs in USD)?
+> What is driving the divergence between different asset classes (cash, stocks, bonds, gold, and real estate)? How well can economic data predict the performance of these asset classes? How do the variable's coefficients vary over time (ie 5 year stretches)? How can pricing of assets in terms of alternative assets affect how we view them (ie S&P 500 in gold terms vs in USD)?
 
 Dataset Overview:
 
@@ -34,16 +33,21 @@ Dataset Overview:
     Stocks (S&P 500)
     Real Estate (Case-Shiller home price index)
     Gold (Gold spot price)
-    Bitcoin (Coinbase)
+    Crypto (Bitcoin)
 
 > Supplementary Data:
 
     Monetary Policy (M1, M2)
     Interest rates (Federal funds rate, Real rates, Yield curve slope)
-    Inflation (CPI, PCE)
+    Inflation (CPE, PCI)
     Economic Activity (US GDP, Unemployment rate)
     Credit Conditions (BBB - treasury spread)
     Risk (VIX, Economic policy uncertainty index)
     Market Sentiment (Michigan consumer sentiment index)
 
-
+> Research Direction
+    1) Clean and prepare data
+    2) Create multiple regression models to predict each primary dataset using the supplementary dataset
+    3) Analyze for correlations between asset classes (Primary data)
+    4) Change the time frame to every 5 years and/or divide by financial events 
+            (2000-2006, 2007-2009, 2010-2019, 2020-2022, 2023-2025)
