@@ -16,12 +16,12 @@ Data series included:
 - GDP: Gross Domestic Product
 - UNRATE: Unemployment Rate
 - CSUSHPISA: Case-Shiller U.S. National Home Price Index
-- SP500: S&P 500 Stock Market Index
-- CBBTCUSD: Coinbase Bitcoin Price
 - VIXCLS: CBOE Volatility Index (VIX)
 - USEPUINDXD: US Economic Policy Uncertainty Index
 - BAMLC0A4CBBB: ICE BofA BBB Corporate Bond Spread
 - UMCSENT: University of Michigan Consumer Sentiment
+
+Note: S&P 500 and Bitcoin are fetched from Yahoo Finance (see fetch_asset_prices.py)
 
 Setup:
     1. Ensure libraries are installed: pip install fredapi pandas python-dotenv
@@ -86,16 +86,6 @@ SERIES_CONFIG = {
         'name': 'Case-Shiller U.S. National Home Price Index',
         'filename': 'home_price_index.csv',
         'column': 'index_value'
-    },
-    'SP500': {
-        'name': 'S&P 500 Stock Market Index',
-        'filename': 'sp500.csv',
-        'column': 'index_value'
-    },
-    'CBBTCUSD': {
-        'name': 'Coinbase Bitcoin Price',
-        'filename': 'bitcoin_price.csv',
-        'column': 'btc_price_usd'
     },
     'VIXCLS': {
         'name': 'CBOE Volatility Index (VIX)',
