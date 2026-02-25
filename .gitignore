@@ -15,17 +15,6 @@ ENV/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Data files (keep directory structure but not large data files)
-data/raw/*.csv
-data/raw/*.xlsx
-data/raw/*.xls
-data/processed/*.csv
-data/processed/*.xlsx
-data/final/*.csv
-data/final/*.xlsx
-*.parquet
-*.feather
-
 # Results (optional - uncomment if you don't want to commit results)
 # results/figures/*.png
 # results/figures/*.jpg
