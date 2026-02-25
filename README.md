@@ -23,6 +23,8 @@ Semester-long capstone for Statistics II: Data Analytics.
 
 Run `python code/config_paths.py` to verify paths.
 
+
+
 ## Research Question
 
 What is driving the divergence between different asset classes (stocks, real estate, gold, and crypto), and how well can macroeconomic variables predict their relative performance? Additionally, how does asset pricing in alternative numeraires (e.g., S&P 500 priced in gold vs. USD) affect our understanding of their real returns?
@@ -30,7 +32,7 @@ What is driving the divergence between different asset classes (stocks, real est
 ## Dataset Overview
 
 - **Primary Dataset:** Multiple asset price series from FRED and market data providers
-- Entities: 4 asset classes (S&P 500, Case-Shiller home prices, gold spot, bitcoin) | Time: Monthly | Period: 2001-2025
+- Entities: 4 asset classes (S&P 500, Case-Shiller home prices, gold spot, bitcoin) | Time: Monthly | Period: 2010-2024
 - **Supplementary Data:**
   - Monetary Policy: M1, M2 (billions USD)
   - Interest Rates: Federal funds rate, Real rates (10Y), Yield curve slope
@@ -81,5 +83,3 @@ qm2023-capstone-team/
 7. **Verify output:** Check `data/final/merged_analysis_panel.csv` for the analysis-ready dataset
 
 **Path Verification:** Run `python code/config_paths.py` to verify all paths are correctly configured.
-
-
