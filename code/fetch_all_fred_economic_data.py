@@ -112,22 +112,28 @@ SERIES_CONFIG = {
 
 def get_api_key():
     """
-    Get FRED API key from environment variable or user input.
+    Get FRED API key from environment variable or .env file.
+    
+    Checks in the following order:
+    1. .env file (production)
+    2. .env.example file (fallback for development)
+    3. User input (if neither file has the key)
     
     Returns:
         str: FRED API key
     """
-    # Try to load from .env file
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-    except ImportError:
-        pass
+    from dotenv import load_dotenv
     
-    # Check environment variable
+    # Try to load from .env file first
+    load_dotenv('.env')
     api_key = os.getenv('FRED_API_KEY')
     
-    # If not found, prompt user
+    # If not found in .env, try .env.example as fallback
+    if not api_key:
+        load_dotenv('.env.example')
+        api_key = os.getenv('FRED_API_KEY')
+    
+    # If still not found, prompt user
     if not api_key:
         print("\n" + "=" * 70)
         print("FRED API KEY REQUIRED")

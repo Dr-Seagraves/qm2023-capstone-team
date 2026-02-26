@@ -283,7 +283,7 @@ def save_datasets(aligned_data, common_dates, missing_value_report):
     merged_df.index.name = 'date'
     
     # Save merged dataset to FINAL directory
-    merged_file = FINAL_DATA_DIR / "merged_economic_data.csv"
+    merged_file = FINAL_DATA_DIR / "merged_analysis_panel.csv"
     merged_df.to_csv(merged_file)
     
     print(f"  ✓ Final merged dataset created: {merged_file.name}")
@@ -304,14 +304,7 @@ def save_datasets(aligned_data, common_dates, missing_value_report):
             pct = (count / len(merged_df)) * 100
             print(f"      {col}: {count} ({pct:.1f}% of {len(merged_df)} months)")
     
-    # Save missing value report
-    if missing_value_report:
-        print("\n" + "=" * 70)
-        print("Missing Value Report\n")
-        report_df = pd.DataFrame(missing_value_report)
-        report_file = FINAL_DATA_DIR / "missing_values_report.csv"
-        report_df.to_csv(report_file, index=False)
-        print(f"  ✓ Report saved: {report_file.name}")
+
     
     return merged_df
 
@@ -329,7 +322,7 @@ def main():
         print("✓ DATA PROCESSING COMPLETE")
         print("=" * 70)
         print(f"\nFinal dataset summary:")
-        print(f"  - Location: {FINAL_DATA_DIR / 'merged_economic_data.csv'}")
+        print(f"  - Location: {FINAL_DATA_DIR / 'merged_analysis_panel.csv'}")
         print(f"  - Variables: {merged_df.shape[1]}")
         print(f"  - Monthly observations: {merged_df.shape[0]}")
         print(f"  - Date range: {merged_df.index.min().date()} to {merged_df.index.max().date()}")
