@@ -1,4 +1,5 @@
 fredapi
+matplotlib
 pandas
 python-dotenv
 requests
