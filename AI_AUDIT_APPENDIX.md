@@ -7,6 +7,8 @@
 1. **Task 1:** Data Collection — Fetching economic data from FRED API and asset prices from Yahoo Finance
 2. **Task 2:** Data Cleaning & Merging — Creating consolidated dataset with standardized frequency and alignment
 3. **Task 3:** Report Generation — Creating data quality documentation and data dictionary
+4. **Task 4:** EDA Notebook Generation — Building and iteratively refining `capstone_eda.ipynb` with 8 required M2 visualizations
+5. **Task 5:** EDA Summary Generation — Creating `M2_EDA_summary.md` with findings, hypotheses, and data-quality flags for M3
 
 ## Key Prompts by Task
 
@@ -27,6 +29,15 @@
 1. "create a comprehensive data quality report documenting all data sources, cleaning decisions, and merge strategy"
 2. "the yahoo data is the primary data, the fred is supplementary"
 3. "create a data dictionary in data/final/data_dictionary.md with variable definitions and cleaning summary"
+
+### Task 4: EDA Notebook Generation
+1. "reference the M2 instructions document and the readme for our research question to create a jupiter notebook creating the 8 necessary figures"
+2. "please make sure the seaborn colorblind friendly palletts are being used for all plots. Please write a short 1 sentence narrative explanation before each visualization (before the code). when creating the divergence index please write a 1 sentence explanation for why bitcoin was dropped"
+
+### Task 5: EDA Summary Generation
+1. "Create this into reports: 3. Summary Markdown: M2_EDA_summary.md"
+2. "Required sections: Key Findings, Hypotheses for M3, Data Quality Flags"
+3. "include correlations, optimal lag, group sensitivity, outliers, control patterns, and planned M3 mitigations"
 
 
 ## Output Summary
@@ -94,6 +105,45 @@
 - Variable definitions table (all 17 variables with source, type, units)
 - Cleaning decisions summary (frequency standardization, missing value handling)
 - Data quality flags and reproducibility instructions
+
+---
+
+### Task 4: EDA Notebook Generation
+
+**Created `code/capstone_eda.ipynb` to satisfy M2 visualization requirements:**
+- Built all 8 required EDA plots and saved outputs to `results/figures/`
+- Defined divergence outcome as cross-asset return dispersion (S&P 500, Home Price Index, Gold), with Bitcoin excluded from construction due to limited historical coverage
+- Added plot-specific interpretation captions tied to M2 guidance (correlation structure, lag structure, group sensitivity, control relationships, decomposition)
+
+**Major iterative refinements made after initial generation:**
+- Resolved notebook execution issues (kernel state/order-of-execution fixes)
+- Added Plot 3 moving-average overlay and adjusted z-order (divergence base, MA overlay, Fed Funds line)
+- Repositioned Plot 3 legend to avoid data occlusion
+- Added slope-labeled legends to Plot 7 regression lines
+- Standardized chart styling to seaborn colorblind-friendly palette across plots
+- Added one-sentence narrative lead-ins before each visualization section
+- Updated Plot 8 labeling (Year x-axis label and `Divergence Index` naming)
+- Consolidated duplicate notebook copies so only `code/capstone_eda.ipynb` remains
+
+---
+
+### Task 5: EDA Summary Generation
+
+**Created `results/reports/M2_EDA_summary.md`:**
+- Included required sections: Key Findings, Hypotheses for M3 (3+), and Data Quality Flags
+- Reported evidence-backed findings on:
+  - Correlations (e.g., VIX strongest with divergence)
+  - Optimal lag structure (12-month lag strongest absolute Fed Funds relationship)
+  - Group sensitivity heterogeneity (Home Price most negative, Gold positive)
+  - Outlier concentration in stress periods (notably 2008, plus 2011 and 2020 episodes)
+- Added explicit M3 model implications:
+  - Driver-effect lag specification
+  - Control premium sign expectations
+  - Group × driver interaction terms
+- Documented data-quality risks and mitigations:
+  - Missingness
+  - Heteroskedasticity (with robust-SE recommendation)
+  - Multicollinearity (with variable-selection/VIF monitoring guidance)
 
 
 ---
@@ -174,6 +224,49 @@
 - Updated section headings to clearly denote primary vs. supplementary sources
 - Documented Bitcoin NaN retention as ethical decision (transparency > false completeness)
 
+---
+
+### Task 4: EDA Notebook Generation
+
+**Verify:**
+- Notebook runs end-to-end with all 8 required figures generated and saved
+- Plot captions aligned to interpretation guidance provided during revision process
+- Plot 3 visual readability improved (line layering, legend placement)
+- Plot 7 includes explicit slope labels in legends
+- Plot styling updated to seaborn colorblind-friendly palette and validated on regenerated figures
+- Final notebook location verified at `code/capstone_eda.ipynb` (duplicate files removed)
+
+**Critique:**
+- Initial notebook iterations had kernel-state dependency issues (cells failed when run out of order)
+- Early captions were too generic and required multiple rounds of interpretation-specific refinement
+- Some plot legends initially obscured data and needed manual repositioning
+- Plot color settings were initially mixed (hard-coded colors + theme defaults) before standardization
+
+**Modify:**
+- Added explicit rolling-average overlays and layering controls where needed
+- Reworked legends (especially Plot 3 and Plot 7) for clarity and non-overlap
+- Added one-sentence context lines before each visualization code block per instructor preference
+- Converted manual color assignments to use consistent colorblind-friendly palette references
+- Updated decomposition labeling conventions (`divergence_index` -> `Divergence Index`)
+
+---
+
+### Task 5: EDA Summary Generation
+
+**Verify:**
+- `M2_EDA_summary.md` created in `results/reports/` with all required rubric sections
+- Included 3+ hypotheses with claim, model form, expected sign, and mechanism
+- Data-quality section explicitly addresses outliers, missingness, heteroskedasticity, and multicollinearity with planned mitigations
+
+**Critique:**
+- Initial draft risked being overly narrative without enough numeric grounding
+- Needed explicit connection between EDA findings and concrete M3 specifications
+
+**Modify:**
+- Added quantitative support (key correlations, lag profile, sensitivity ranking)
+- Tightened hypotheses to map directly into estimable M3 model terms
+- Expanded mitigation notes to include robust SEs, interaction terms, and control-set checks
+
 
 ---
 
@@ -199,6 +292,16 @@
 - Balancing detail with accessibility (data dictionary vs. extended reports)
 - Ethical documentation practices (disclosing exclusions, trade-offs, limitations)
 
+**Task 4 - EDA Notebook Generation:**
+- Translating milestone instructions into a full notebook workflow with reproducible figures
+- Improving plot communication through iterative legend, caption, and layering revisions
+- Applying accessible visualization practices (colorblind-safe palettes, clearer labels)
+
+**Task 5 - EDA Summary Generation:**
+- Converting descriptive EDA outputs into testable econometric hypotheses
+- Linking diagnostics (lags, heterogeneity, multicollinearity, heteroskedasticity) to model-design decisions
+- Writing concise evidence-to-model narratives for milestone reporting
+
 ### What Did AI Get Wrong or Require Correction?
 
 **Task 1:**
@@ -215,3 +318,13 @@
 **Task 3:**
 - Section structure needed reordering to clarify primary (Yahoo Finance) vs. supplementary (FRED) data hierarchy
 - Initial report lacked explicit ethical considerations section (added post-draft)
+
+**Task 4:**
+- Initial notebook version required troubleshooting for execution state/order
+- Some default legend placements blocked important lines and had to be manually moved
+- Early caption drafts were too generic and needed revisions tied to actual plotted patterns
+- Plot colors required explicit standardization to fully align with colorblind-friendly guidance
+
+**Task 5:**
+- First-pass summary language was too broad; required stronger numeric anchoring and tighter hypothesis structure
+- Needed explicit mapping from EDA diagnostics to concrete M3 mitigation steps

@@ -12,13 +12,13 @@ Semester-long capstone for Statistics II: Data Analytics.
 
 ## Project Structure
 
-- **code/** — Python scripts and notebooks. Use `config_paths.py` for paths.
+- **code/** — Python scripts and the M2 EDA notebook. Use `config_paths.py` for paths.
 - **data/raw/** — Original data (read-only)
 - **data/processed/** — Intermediate cleaning outputs
 - **data/final/** — M1 output: analysis-ready panel
 - **results/figures/** — Visualizations
 - **results/tables/** — Regression tables, summary stats
-- **results/reports/** — Milestone memos
+- **results/reports/** — Milestone memos and summary markdowns
 - **tests/** — Autograding test suite
 
 Run `python code/config_paths.py` to verify paths.
@@ -52,10 +52,9 @@ What is driving the divergence between different asset classes (stocks, real est
 ```
 qm2023-capstone-team/
 ├── AI_AUDIT_APPENDIX.md         # Audit documentation for AI-assisted work
-├── M1_data_quality_report.md    # Data quality assessment report
 ├── README.md                     # This file
-├── requirements.txt              # Python dependencies
 ├── code/                         # Data processing and analysis scripts
+│   ├── capstone_eda.ipynb        # M2 exploratory data analysis notebook
 │   ├── config_paths.py           # Centralized path configuration
 │   ├── fetch_all_fred_economic_data.py  # FRED economic data retrieval
 │   ├── fetch_asset_prices.py     # Asset price data collection
@@ -69,6 +68,8 @@ qm2023-capstone-team/
 │   ├── figures/                  # Visualizations and plots
 │   ├── tables/                   # Regression tables and summary statistics
 │   └── reports/                  # Milestone memos and analysis reports
+│       ├── M1_data_quality_report.md
+│       └── M2_EDA_summary.md
 └── tests/                        # Autograding test suite
 ```
 
@@ -76,10 +77,10 @@ qm2023-capstone-team/
 
 1. **Clone repository** and navigate to the project directory
 2. **Open in GitHub Codespaces** (recommended environment)
-3. **Install dependencies:** `pip install -r requirements.txt`
-4. **Fetch FRED economic data:** `python code/fetch_all_fred_economic_data.py`
-5. **Fetch asset prices:** `python code/fetch_asset_prices.py`
-6. **Clean and merge datasets:** `python code/clean_and_merge.py`
-7. **Verify output:** Check `data/final/merged_analysis_panel.csv` for the analysis-ready dataset
+3. **Fetch FRED economic data:** `python code/fetch_all_fred_economic_data.py`
+4. **Fetch asset prices:** `python code/fetch_asset_prices.py`
+5. **Clean and merge datasets:** `python code/clean_and_merge.py`
+6. **Verify output:** Check `data/final/merged_analysis_panel.csv` for the analysis-ready dataset
+7. **Run EDA notebook:** Open `code/capstone_eda.ipynb` and run all cells to regenerate M2 figures and captions
 
 **Path Verification:** Run `python code/config_paths.py` to verify all paths are correctly configured.
