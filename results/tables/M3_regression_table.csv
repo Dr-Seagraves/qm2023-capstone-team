@@ -1,0 +1,10 @@
+term,Model_1_FE_Baseline_coef,Model_1_FE_Baseline_se,Model_2_FE_RobustSE_coef,Model_2_FE_RobustSE_se
+policy_exposure_term_12,-0.0029,(0.0068),-0.0029,(0.0763)
+vix_exposure_term,-0.0040,(0.0025),-0.0040,(0.0235)
+ret_lag1,-0.5009***,(0.0006),-0.5009***,(0.0461)
+ret_mom3,1.5032***,(0.0045),1.5032***,(0.0714)
+Entity_FE,Yes,,Yes,
+Time_FE,Yes,,Yes,
+Clustered_SE,Yes,,No (HC robust),
+N,855,,855,
+R2_within,0.4843,,0.4843,

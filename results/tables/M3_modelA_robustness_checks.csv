@@ -1,0 +1,9 @@
+specification,robustness_type,policy_term,coef,p_value
+Lag12,AlternativeLagsOrPlacebo,policy_exposure_term_12,-0.002910800356422586,0.9695850720449506
+Lag6,AlternativeLagsOrPlacebo,policy_exposure_term_6,-0.02480165871425736,0.7283350106322084
+Lag3,AlternativeLagsOrPlacebo,policy_exposure_term_3,-0.0465518189523239,0.49798099062191126
+PlaceboLead12,AlternativeLagsOrPlacebo,policy_placebo_term,-0.026501193814797135,0.6965245718502737
+ExcludeCrisis_2008_2009_2020M3M5,OutlierExclusion,policy_exposure_term_12,0.0055258870500463405,0.9423315572227571
+Subsample_SP500,GroupSubsample,fed_funds_rate_lag12,-0.01661502426878359,0.8566489077552741
+Subsample_HomePrice,GroupSubsample,fed_funds_rate_lag12,-0.004085987273670233,0.48990796204040665
+Subsample_Gold,GroupSubsample,fed_funds_rate_lag12,-0.0008107889055997204,0.9946243022613528

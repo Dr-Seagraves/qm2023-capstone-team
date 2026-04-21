@@ -328,3 +328,98 @@
 **Task 5:**
 - First-pass summary language was too broad; required stronger numeric anchoring and tighter hypothesis structure
 - Needed explicit mapping from EDA diagnostics to concrete M3 mitigation steps
+
+---
+
+# Milestone 3 Update: Econometric Models (April 2026)
+
+## Tool(s) Used
+- GitHub Copilot (GPT-5.3-Codex)
+
+## Task(s) Where AI Was Used (M3)
+1. **Task M3-1:** Implement `code/capstone_models.py` with required sectioned structure.
+2. **Task M3-2:** Implement Model A (Fixed Effects panel model) with entity and time effects.
+3. **Task M3-3:** Implement Model B (Machine Learning comparison: Random Forest vs OLS).
+4. **Task M3-4:** Implement required diagnostics (Breusch-Pagan, VIF, residual diagnostics).
+5. **Task M3-5:** Implement robustness checks (robust SE, alternative lags, placebo lead test).
+6. **Task M3-6:** Save publication-ready output tables and figures to milestone-required folders.
+7. **Task M3-7:** Update dependency file for reproducibility.
+8. **Task M3-8:** Draft `M3_interpretation.md` with economic interpretation, diagnostics interpretation, robustness summary, and caveats.
+
+## Key Prompts (M3)
+1. "Start Milestone 3 from the existing project context and keep consistency with M2 definitions."
+2. "Create `capstone_models.py` that runs top-to-bottom with relative paths and section headers."
+3. "Model A must be Fixed Effects and include diagnostics and robustness checks."
+4. "Choose one Model B option; implement ML comparison and save performance tables/plots."
+5. "Update AI audit appendix for this milestone and double-check consistency/accuracy."
+
+## Output Summary (M3)
+
+### 1) Script Created
+- `code/capstone_models.py` added with full M3 structure:
+  - Section 1: Imports/data loading (`merged_analysis_panel.csv`)
+  - Section 2: Feature engineering and panel reshape
+  - Section 3: Model A Fixed Effects estimation
+  - Section 4: Model B ML comparison (RF vs OLS)
+  - Section 5: Diagnostics
+  - Section 6: Robustness checks
+  - Section 7: Saved outputs
+
+### 2) Model A (Required Fixed Effects)
+- Built an asset-level panel (`asset` × `date`) from M2-consistent monthly returns:
+  - `ret_SP500`, `ret_HomePrice`, `ret_Gold`
+- Included entity and time effects in `PanelOLS` when available.
+- Used exposure-based policy interaction term to maintain identification with time FE in a macro-shock panel context.
+- Produced clustered and robust standard-error variants.
+
+### 3) Model B (Chosen Option: ML comparison)
+- Implemented train/test comparison:
+  - OLS benchmark (`LinearRegression`)
+  - `RandomForestRegressor`
+- Reported test-set `R^2` and RMSE.
+- Exported RF feature importance table and figure.
+
+### 4) Diagnostics Implemented
+- Breusch-Pagan heteroskedasticity test output.
+- VIF table for predictor multicollinearity.
+- Residual diagnostics plots:
+  - Residuals vs fitted
+  - Q-Q plot
+
+### 5) Robustness Checks Implemented
+- Alternative policy lags (`lag12`, `lag6`, `lag3`).
+- Placebo lead test (`lead12`).
+- Outlier exclusion re-estimation (2008-2009 crisis window and Mar-May 2020).
+- Group subsample re-estimation by asset class (S&P 500, Home Price, Gold).
+- Exported coefficient and p-value table by specification.
+
+### 6) Output Locations
+- Tables written to `results/tables/`.
+- Figures written to `results/figures/`.
+- Run summary text file generated for quick audit trail.
+
+### 7) Reproducibility Update
+- Updated `technicals/requirements.txt` to include:
+  - `numpy`, `seaborn`, `statsmodels`, `linearmodels`, `scikit-learn`
+
+## Verification & Modifications (Disclose • Verify • Critique)
+
+### Verify
+- Confirmed script uses relative path imports via `config_paths` constants (`FINAL_DATA_DIR`, `FIGURES_DIR`, `TABLES_DIR`).
+- Confirmed sectioned structure aligns with Milestone 3 rubric requirements.
+- Confirmed M2-consistent outcome engineering pipeline (asset returns and divergence construction logic retained as reference context).
+- Confirmed all required output artifacts are explicitly saved to required directories.
+
+### Critique
+- Current container environment did not include all runtime packages by default, so full end-to-end execution could not be validated here without environment setup.
+- Panel identification with two-way FE in a macro-only shock setup requires interaction-based terms; direct common macro levels are absorbed by time effects.
+
+### Modify
+- Added fallback path to OLS with entity/time dummies if `linearmodels` is unavailable.
+- Added explicit comments documenting identification choice and fallback behavior.
+- Added standardized output exports for tables/figures to support publication-ready reporting workflow.
+
+## Reflection on AI Use (M3)
+- AI accelerated implementation of a reproducible M3 script architecture and standardized output pipeline.
+- AI assisted in translating M2 findings into estimable model terms (lag choice, panel reshape, diagnostics, robustness).
+- Human oversight remained necessary for dataset-specific identification decisions and consistency checks with prior milestone definitions.

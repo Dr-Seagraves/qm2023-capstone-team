@@ -1,0 +1,20 @@
+QM 2023 Capstone Milestone 3 Run Summary
+=====================================
+
+Model A (Fixed Effects) saved tables:
+- M3_modelA_regression_table.csv
+- M3_regression_table.csv
+- M3_modelA_breusch_pagan.csv
+- M3_modelA_vif.csv
+- M3_modelA_robustness_checks.csv
+
+Model B (ML Comparison) saved tables:
+- M3_modelB_ml_comparison.csv
+- M3_modelB_rf_feature_importance.csv
+
+Saved figures:
+- M3_residuals_vs_fitted.png
+- M3_qq_plot.png
+- M3_modelA_residuals_vs_fitted.png
+- M3_modelA_residuals_qq.png
+- M3_modelB_rf_feature_importance_top10.png

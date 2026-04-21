@@ -4,3 +4,8 @@ pandas
 python-dotenv
 requests
 yfinance
+numpy
+seaborn
+statsmodels
+linearmodels
+scikit-learn
