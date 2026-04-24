@@ -15,6 +15,5 @@ Model B (ML Comparison) saved tables:
 Saved figures:
 - M3_residuals_vs_fitted.png
 - M3_qq_plot.png
-- M3_modelA_residuals_vs_fitted.png
-- M3_modelA_residuals_qq.png
 - M3_modelB_rf_feature_importance_top10.png
+- M3_modelA_robust_se_comparison.png

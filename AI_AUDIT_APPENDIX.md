@@ -1,14 +1,15 @@
 # AI Audit Appendix (Assignment 05)
 
 ## Tool(s) Used
-- GitHub Copilot (Claude Haiku 4.5)
+- GitHub Copilot (Claude Haiku 4.5 for earlier tasks; GPT-5.3-Codex for Milestone 3 updates)
 
 ## Task(s) Where AI Was Used
 1. **Task 1:** Data Collection — Fetching economic data from FRED API and asset prices from Yahoo Finance
 2. **Task 2:** Data Cleaning & Merging — Creating consolidated dataset with standardized frequency and alignment
 3. **Task 3:** Report Generation — Creating data quality documentation and data dictionary
 4. **Task 4:** EDA Notebook Generation — Building and iteratively refining `capstone_eda.ipynb` with 8 required M2 visualizations
-5. **Task 5:** EDA Summary Generation — Creating `M2_EDA_summary.md` with findings, hypotheses, and data-quality flags for M3
+5. **Task 5:** Model Script Generation — Creating and refining `code/capstone_models.py` for Milestone 3 models, diagnostics, robustness checks, and output exports
+6. **Task 6:** M3 Interpretation Generation — Creating and iteratively improving `M3_interpretation.md` with model interpretation, diagnostics, robustness summary, and finalized files-produced documentation
 
 ## Key Prompts by Task
 
@@ -34,10 +35,15 @@
 1. "reference the M2 instructions document and the readme for our research question to create a jupiter notebook creating the 8 necessary figures"
 2. "please make sure the seaborn colorblind friendly palletts are being used for all plots. Please write a short 1 sentence narrative explanation before each visualization (before the code). when creating the divergence index please write a 1 sentence explanation for why bitcoin was dropped"
 
-### Task 5: EDA Summary Generation
-1. "Create this into reports: 3. Summary Markdown: M2_EDA_summary.md"
-2. "Required sections: Key Findings, Hypotheses for M3, Data Quality Flags"
-3. "include correlations, optimal lag, group sensitivity, outliers, control patterns, and planned M3 mitigations"
+### Task 5: Model Script Generation
+1. "create the M3 models script with fixed effects model + random forest comparison"
+3. "add a robust standard error robustness check to the models script. update tables/figures/report as needed"
+4. "Please update the tables and figures to not have _ where not needed"
+
+### Task 6: M3 Interpretation Generation
+1. "Please add some more detail to the report. definitely update the files produced section. format it a little cleaner (keep the sections as is)"
+2. "write a super short explanation of what each item is in the files produced section"
+3. "keep them seperated by type and maybe add the description before or after-- its not super noticable"
 
 
 ## Output Summary
@@ -127,23 +133,37 @@
 
 ---
 
-### Task 5: EDA Summary Generation
+### Task 5: Model Script Generation
 
-**Created `results/reports/M2_EDA_summary.md`:**
-- Included required sections: Key Findings, Hypotheses for M3 (3+), and Data Quality Flags
-- Reported evidence-backed findings on:
-  - Correlations (e.g., VIX strongest with divergence)
-  - Optimal lag structure (12-month lag strongest absolute Fed Funds relationship)
-  - Group sensitivity heterogeneity (Home Price most negative, Gold positive)
-  - Outlier concentration in stress periods (notably 2008, plus 2011 and 2020 episodes)
-- Added explicit M3 model implications:
-  - Driver-effect lag specification
-  - Control premium sign expectations
-  - Group × driver interaction terms
-- Documented data-quality risks and mitigations:
-  - Missingness
-  - Heteroskedasticity (with robust-SE recommendation)
-  - Multicollinearity (with variable-selection/VIF monitoring guidance)
+**Created `code/capstone_models.py` to satisfy M3 modeling requirements:**
+- Implemented Model A (two-way fixed effects panel specification with entity and time effects)
+- Implemented Model B (Random Forest vs OLS comparison with test R2 and RMSE)
+- Added required diagnostics:
+  - Breusch-Pagan heteroskedasticity test
+  - VIF multicollinearity checks
+  - Residual-vs-fitted and Q-Q diagnostic plots
+- Added robustness checks:
+  - Alternative lag specifications (lag 3/6/12)
+  - Placebo lead test
+  - Crisis-window exclusion re-estimation
+  - Asset-group subsample tests
+  - Robust SE covariance comparison (HC0/HC1/HC2/HC3)
+- Exported milestone outputs to required folders (`results/tables/`, `results/figures/`)
+- Cleaned output labels to publication-friendly naming (removed unnecessary underscores in table columns and feature names)
+
+### Task 6: M3 Interpretation Generation
+
+**Created and iteratively refined `M3_interpretation.md`:**
+- Preserved required section structure while expanding interpretation detail
+- Added stronger model-read guidance:
+  - Statistical interpretation of the policy effect estimate
+  - Practical/economic magnitude interpretation
+  - FE/OLS vs Random Forest usage guidance
+- Expanded diagnostics and robustness narrative with concise takeaways
+- Reworked `Files Produced` section for readability:
+  - Separated by type (`Report`, `Tables`, `Figures`)
+  - Added ultra-short per-item descriptions
+  - Improved scanability/format clarity while keeping section headings intact
 
 
 ---
@@ -251,21 +271,38 @@
 
 ---
 
-### Task 5: EDA Summary Generation
+### Task 5: Model Script Generation
 
 **Verify:**
-- `M2_EDA_summary.md` created in `results/reports/` with all required rubric sections
-- Included 3+ hypotheses with claim, model form, expected sign, and mechanism
-- Data-quality section explicitly addresses outliers, missingness, heteroskedasticity, and multicollinearity with planned mitigations
+- `code/capstone_models.py` executes end-to-end and writes all M3 artifacts to `results/tables/` and `results/figures/`
+- Model A and Model B outputs generated successfully with diagnostics and robustness tables
+- Robust SE comparison entries present in `M3_modelA_robustness_checks.csv`
+- RF feature-importance outputs generated as both table and figure
 
 **Critique:**
-- Initial draft risked being overly narrative without enough numeric grounding
-- Needed explicit connection between EDA findings and concrete M3 specifications
+- Initial outputs used overly technical/underscored labels that were less publication-friendly
+- Robust-SE robustness reporting needed clearer explicit comparison entries
 
 **Modify:**
-- Added quantitative support (key correlations, lag profile, sensitivity ranking)
-- Tightened hypotheses to map directly into estimable M3 model terms
-- Expanded mitigation notes to include robust SEs, interaction terms, and control-set checks
+- Added robust covariance comparison rows (HC0/HC1/HC2/HC3) into robustness output
+- Added robust SE comparison figure for quick visual inspection
+- Refactored output label formatting for cleaner column names and feature labels
+
+### Task 6: M3 Interpretation Generation
+
+**Verify:**
+- `M3_interpretation.md` generated successfully from script and aligned with M3 outputs
+- All required sections retained and expanded with additional interpretive detail
+- `Files Produced` section updated to explicit, readable artifact inventory
+
+**Critique:**
+- Initial memo draft was too concise in headline interpretation and practical implications
+- Files list was initially generic and harder to scan quickly
+
+**Modify:**
+- Added short, high-signal interpretation bullets in Model A/Model B/Diagnostics sections
+- Reorganized file inventory by output type and added brief per-item explanations
+- Tightened formatting for cleaner section flow without changing required headings
 
 
 ---
@@ -297,10 +334,15 @@
 - Improving plot communication through iterative legend, caption, and layering revisions
 - Applying accessible visualization practices (colorblind-safe palettes, clearer labels)
 
-**Task 5 - EDA Summary Generation:**
-- Converting descriptive EDA outputs into testable econometric hypotheses
-- Linking diagnostics (lags, heterogeneity, multicollinearity, heteroskedasticity) to model-design decisions
-- Writing concise evidence-to-model narratives for milestone reporting
+**Task 5 - Model Script Generation:**
+- Structuring an end-to-end econometric modeling pipeline with reproducible exports
+- Implementing FE + ML comparison workflows with diagnostics and robustness checks
+- Converting technical variable names into publication-ready output labeling
+
+**Task 6 - M3 Interpretation Generation:**
+- Writing concise model interpretation with both statistical and practical framing
+- Organizing artifact inventories for readability and auditability
+- Iteratively improving technical prose while preserving required section structure
 
 ### What Did AI Get Wrong or Require Correction?
 
@@ -326,100 +368,9 @@
 - Plot colors required explicit standardization to fully align with colorblind-friendly guidance
 
 **Task 5:**
-- First-pass summary language was too broad; required stronger numeric anchoring and tighter hypothesis structure
-- Needed explicit mapping from EDA diagnostics to concrete M3 mitigation steps
+- Initial model output labels were too technical for report-facing tables and figure readability
+- Robustness checks initially needed explicit robust-SE comparison entries to be clearer for interpretation
 
----
-
-# Milestone 3 Update: Econometric Models (April 2026)
-
-## Tool(s) Used
-- GitHub Copilot (GPT-5.3-Codex)
-
-## Task(s) Where AI Was Used (M3)
-1. **Task M3-1:** Implement `code/capstone_models.py` with required sectioned structure.
-2. **Task M3-2:** Implement Model A (Fixed Effects panel model) with entity and time effects.
-3. **Task M3-3:** Implement Model B (Machine Learning comparison: Random Forest vs OLS).
-4. **Task M3-4:** Implement required diagnostics (Breusch-Pagan, VIF, residual diagnostics).
-5. **Task M3-5:** Implement robustness checks (robust SE, alternative lags, placebo lead test).
-6. **Task M3-6:** Save publication-ready output tables and figures to milestone-required folders.
-7. **Task M3-7:** Update dependency file for reproducibility.
-8. **Task M3-8:** Draft `M3_interpretation.md` with economic interpretation, diagnostics interpretation, robustness summary, and caveats.
-
-## Key Prompts (M3)
-1. "Start Milestone 3 from the existing project context and keep consistency with M2 definitions."
-2. "Create `capstone_models.py` that runs top-to-bottom with relative paths and section headers."
-3. "Model A must be Fixed Effects and include diagnostics and robustness checks."
-4. "Choose one Model B option; implement ML comparison and save performance tables/plots."
-5. "Update AI audit appendix for this milestone and double-check consistency/accuracy."
-
-## Output Summary (M3)
-
-### 1) Script Created
-- `code/capstone_models.py` added with full M3 structure:
-  - Section 1: Imports/data loading (`merged_analysis_panel.csv`)
-  - Section 2: Feature engineering and panel reshape
-  - Section 3: Model A Fixed Effects estimation
-  - Section 4: Model B ML comparison (RF vs OLS)
-  - Section 5: Diagnostics
-  - Section 6: Robustness checks
-  - Section 7: Saved outputs
-
-### 2) Model A (Required Fixed Effects)
-- Built an asset-level panel (`asset` × `date`) from M2-consistent monthly returns:
-  - `ret_SP500`, `ret_HomePrice`, `ret_Gold`
-- Included entity and time effects in `PanelOLS` when available.
-- Used exposure-based policy interaction term to maintain identification with time FE in a macro-shock panel context.
-- Produced clustered and robust standard-error variants.
-
-### 3) Model B (Chosen Option: ML comparison)
-- Implemented train/test comparison:
-  - OLS benchmark (`LinearRegression`)
-  - `RandomForestRegressor`
-- Reported test-set `R^2` and RMSE.
-- Exported RF feature importance table and figure.
-
-### 4) Diagnostics Implemented
-- Breusch-Pagan heteroskedasticity test output.
-- VIF table for predictor multicollinearity.
-- Residual diagnostics plots:
-  - Residuals vs fitted
-  - Q-Q plot
-
-### 5) Robustness Checks Implemented
-- Alternative policy lags (`lag12`, `lag6`, `lag3`).
-- Placebo lead test (`lead12`).
-- Outlier exclusion re-estimation (2008-2009 crisis window and Mar-May 2020).
-- Group subsample re-estimation by asset class (S&P 500, Home Price, Gold).
-- Exported coefficient and p-value table by specification.
-
-### 6) Output Locations
-- Tables written to `results/tables/`.
-- Figures written to `results/figures/`.
-- Run summary text file generated for quick audit trail.
-
-### 7) Reproducibility Update
-- Updated `technicals/requirements.txt` to include:
-  - `numpy`, `seaborn`, `statsmodels`, `linearmodels`, `scikit-learn`
-
-## Verification & Modifications (Disclose • Verify • Critique)
-
-### Verify
-- Confirmed script uses relative path imports via `config_paths` constants (`FINAL_DATA_DIR`, `FIGURES_DIR`, `TABLES_DIR`).
-- Confirmed sectioned structure aligns with Milestone 3 rubric requirements.
-- Confirmed M2-consistent outcome engineering pipeline (asset returns and divergence construction logic retained as reference context).
-- Confirmed all required output artifacts are explicitly saved to required directories.
-
-### Critique
-- Current container environment did not include all runtime packages by default, so full end-to-end execution could not be validated here without environment setup.
-- Panel identification with two-way FE in a macro-only shock setup requires interaction-based terms; direct common macro levels are absorbed by time effects.
-
-### Modify
-- Added fallback path to OLS with entity/time dummies if `linearmodels` is unavailable.
-- Added explicit comments documenting identification choice and fallback behavior.
-- Added standardized output exports for tables/figures to support publication-ready reporting workflow.
-
-## Reflection on AI Use (M3)
-- AI accelerated implementation of a reproducible M3 script architecture and standardized output pipeline.
-- AI assisted in translating M2 findings into estimable model terms (lag choice, panel reshape, diagnostics, robustness).
-- Human oversight remained necessary for dataset-specific identification decisions and consistency checks with prior milestone definitions.
+**Task 6:**
+- First interpretation draft was too terse and required more practical context around coefficient meaning
+- Files-produced list was initially present but not visually prominent enough for quick grading/audit

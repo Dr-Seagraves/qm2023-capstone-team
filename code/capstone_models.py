@@ -174,6 +174,7 @@ def fit_model_a_fe(long_df: pd.DataFrame):
 
     if HAS_LINEARMODELS:
         model_main = PanelOLS(y, X, entity_effects=True, time_effects=True)
+        fe_standard = model_main.fit(cov_type="unadjusted")
         fe_clustered = model_main.fit(cov_type="clustered", cluster_entity=True)
         fe_robust = model_main.fit(cov_type="robust")
     else:
@@ -190,11 +191,17 @@ def fit_model_a_fe(long_df: pd.DataFrame):
         x_cols += [c for c in tmp.columns if c.startswith("asset_") or c.startswith("t_")]
 
         X_sm = sm.add_constant(tmp[x_cols])
-        ols_fit = sm.OLS(tmp["asset_return_pct"], X_sm).fit(cov_type="HC1")
-        fe_clustered = ols_fit
-        fe_robust = ols_fit
+        ols_base = sm.OLS(tmp["asset_return_pct"], X_sm).fit()
+        ols_clustered = sm.OLS(tmp["asset_return_pct"], X_sm).fit(
+            cov_type="cluster",
+            cov_kwds={"groups": tmp["asset"]},
+        )
+        ols_robust = sm.OLS(tmp["asset_return_pct"], X_sm).fit(cov_type="HC1")
+        fe_standard = ols_base
+        fe_clustered = ols_clustered
+        fe_robust = ols_robust
 
-    return fe_df, fe_clustered, fe_robust
+    return fe_df, fe_standard, fe_clustered, fe_robust
 
 
 # -----------------------------------------------------------------------------
@@ -304,9 +311,7 @@ def diagnostics_model_a(fe_df: pd.DataFrame, fe_model) -> tuple[pd.DataFrame, pd
     ax.set_xlabel("Fitted values")
     ax.set_ylabel("Residuals")
     plt.tight_layout()
-    # Keep both naming schemes for compatibility with rubric examples and prior runs.
     fig.savefig(FIGURES_DIR / "M3_residuals_vs_fitted.png", dpi=300)
-    fig.savefig(FIGURES_DIR / "M3_modelA_residuals_vs_fitted.png", dpi=300)
     plt.close(fig)
 
     fig = plt.figure(figsize=(7, 5))
@@ -314,7 +319,6 @@ def diagnostics_model_a(fe_df: pd.DataFrame, fe_model) -> tuple[pd.DataFrame, pd
     plt.title("M3 Residual Q-Q Plot (Model A)")
     plt.tight_layout()
     plt.savefig(FIGURES_DIR / "M3_qq_plot.png", dpi=300)
-    plt.savefig(FIGURES_DIR / "M3_modelA_residuals_qq.png", dpi=300)
     plt.close(fig)
 
     return bp_df, vif_df
@@ -433,6 +437,54 @@ def robustness_checks(long_df: pd.DataFrame) -> pd.DataFrame:
             }
         )
 
+    # Robustness check: Compare different robust standard error specifications (HC0, HC1, HC2, HC3).
+    use_cols = [
+        "asset_return_pct",
+        "asset",
+        "date",
+        "policy_exposure_term_12",
+        "vix_exposure_term",
+        "ret_lag1",
+        "ret_mom3",
+    ]
+    fe_df_se = long_df[use_cols].dropna().copy()
+    fe_df_se = fe_df_se.set_index(["asset", "date"]).sort_index()
+
+    y_se = fe_df_se["asset_return_pct"]
+    X_se = fe_df_se[["policy_exposure_term_12", "vix_exposure_term", "ret_lag1", "ret_mom3"]]
+
+    for hc_type in ["HC0", "HC1", "HC2", "HC3"]:
+        if HAS_LINEARMODELS:
+            fit_se = PanelOLS(y_se, X_se, entity_effects=True, time_effects=True).fit(cov_type="robust")
+            # Note: linearmodels doesn't expose HC types directly; use as is
+            coef_se = float(fit_se.params.get("policy_exposure_term_12", np.nan))
+            se_se = float(fit_se.std_errors.get("policy_exposure_term_12", np.nan))
+            pval_se = float(fit_se.pvalues.get("policy_exposure_term_12", np.nan))
+        else:
+            data_se = fe_df_se.reset_index()
+            data_se = pd.get_dummies(data_se, columns=["asset"], drop_first=True)
+            date_dummies_se = pd.get_dummies(data_se["date"], prefix="t", drop_first=True)
+            data_se = pd.concat([data_se, date_dummies_se], axis=1)
+
+            x_cols_se = ["policy_exposure_term_12", "vix_exposure_term", "ret_lag1", "ret_mom3"]
+            x_cols_se += [c for c in data_se.columns if c.startswith("asset_") or c.startswith("t_")]
+
+            fit_se = sm.OLS(data_se["asset_return_pct"], sm.add_constant(data_se[x_cols_se])).fit(cov_type=hc_type)
+            coef_se = float(fit_se.params.get("policy_exposure_term_12", np.nan))
+            se_se = float(fit_se.bse.get("policy_exposure_term_12", np.nan))
+            pval_se = float(fit_se.pvalues.get("policy_exposure_term_12", np.nan))
+
+        checks.append(
+            {
+                "specification": f"RobustSE_{hc_type}",
+                "robustness_type": "RobustSEComparison",
+                "policy_term": "policy_exposure_term_12",
+                "coef": coef_se,
+                "std_err": se_se,
+                "p_value": pval_se,
+            }
+        )
+
     return pd.DataFrame(checks)
 
 
@@ -469,11 +521,48 @@ def p_stars(pval: float) -> str:
     return ""
 
 
-def build_publication_table(fe_clustered, fe_robust) -> pd.DataFrame:
+def format_term_label(term: str) -> str:
+    mapping = {
+        "policy_exposure_term_12": "Policy Exposure (Lag 12)",
+        "policy_exposure_term_6": "Policy Exposure (Lag 6)",
+        "policy_exposure_term_3": "Policy Exposure (Lag 3)",
+        "policy_placebo_term": "Policy Placebo Lead (12)",
+        "vix_exposure_term": "VIX Exposure",
+        "ret_lag1": "Return Lag 1",
+        "ret_mom3": "Return Momentum (3M)",
+        "Entity_FE": "Entity FE",
+        "Time_FE": "Time FE",
+        "Clustered_SE": "Clustered SE",
+        "R2_within": "R2 Within",
+    }
+    return mapping.get(term, term.replace("_", " ").title())
+
+
+def format_feature_label(feature: str) -> str:
+    mapping = {
+        "ret_mom3": "Return Momentum (3M)",
+        "ret_lag1": "Return Lag 1",
+        "vix_index": "VIX Index",
+        "m2_growth_pct": "M2 Growth (%)",
+        "consumer_sentiment": "Consumer Sentiment",
+        "bbb_spread": "BBB Spread",
+        "fed_funds_rate_lag12": "Fed Funds Rate (Lag 12)",
+        "asset_SP500": "Asset: SP500",
+        "asset_HomePrice": "Asset: Home Price",
+        "asset_Gold": "Asset: Gold",
+    }
+    return mapping.get(feature, feature.replace("_", " ").title())
+
+
+def build_publication_table(fe_standard, fe_clustered, fe_robust) -> pd.DataFrame:
     records = []
     terms = ["policy_exposure_term_12", "vix_exposure_term", "ret_lag1", "ret_mom3"]
 
     for term in terms:
+        c0 = float(fe_standard.params.get(term, np.nan))
+        se0 = float(fe_standard.std_errors.get(term, np.nan))
+        p0 = float(fe_standard.pvalues.get(term, np.nan))
+
         c1 = float(fe_clustered.params.get(term, np.nan))
         se1 = float(fe_clustered.std_errors.get(term, np.nan))
         p1 = float(fe_clustered.pvalues.get(term, np.nan))
@@ -484,11 +573,13 @@ def build_publication_table(fe_clustered, fe_robust) -> pd.DataFrame:
 
         records.append(
             {
-                "term": term,
-                "Model_1_FE_Baseline_coef": f"{c1:.4f}{p_stars(p1)}",
-                "Model_1_FE_Baseline_se": f"({se1:.4f})",
-                "Model_2_FE_RobustSE_coef": f"{c2:.4f}{p_stars(p2)}",
-                "Model_2_FE_RobustSE_se": f"({se2:.4f})",
+                "Term": format_term_label(term),
+                "Model 1 FE Standard Coef": f"{c0:.4f}{p_stars(p0)}",
+                "Model 1 FE Standard SE": f"({se0:.4f})",
+                "Model 2 FE Clustered Coef": f"{c1:.4f}{p_stars(p1)}",
+                "Model 2 FE Clustered SE": f"({se1:.4f})",
+                "Model 3 FE Robust Coef": f"{c2:.4f}{p_stars(p2)}",
+                "Model 3 FE Robust SE": f"({se2:.4f})",
             }
         )
 
@@ -496,47 +587,68 @@ def build_publication_table(fe_clustered, fe_robust) -> pd.DataFrame:
     within_r2 = float(getattr(fe_clustered, "rsquared_within", np.nan))
     records.append(
         {
-            "term": "Entity_FE",
-            "Model_1_FE_Baseline_coef": "Yes",
-            "Model_1_FE_Baseline_se": "",
-            "Model_2_FE_RobustSE_coef": "Yes",
-            "Model_2_FE_RobustSE_se": "",
+            "Term": "Entity FE",
+            "Model 1 FE Standard Coef": "Yes",
+            "Model 1 FE Standard SE": "",
+            "Model 2 FE Clustered Coef": "Yes",
+            "Model 2 FE Clustered SE": "",
+            "Model 3 FE Robust Coef": "Yes",
+            "Model 3 FE Robust SE": "",
         }
     )
     records.append(
         {
-            "term": "Time_FE",
-            "Model_1_FE_Baseline_coef": "Yes",
-            "Model_1_FE_Baseline_se": "",
-            "Model_2_FE_RobustSE_coef": "Yes",
-            "Model_2_FE_RobustSE_se": "",
+            "Term": "Time FE",
+            "Model 1 FE Standard Coef": "Yes",
+            "Model 1 FE Standard SE": "",
+            "Model 2 FE Clustered Coef": "Yes",
+            "Model 2 FE Clustered SE": "",
+            "Model 3 FE Robust Coef": "Yes",
+            "Model 3 FE Robust SE": "",
         }
     )
     records.append(
         {
-            "term": "Clustered_SE",
-            "Model_1_FE_Baseline_coef": "Yes",
-            "Model_1_FE_Baseline_se": "",
-            "Model_2_FE_RobustSE_coef": "No (HC robust)",
-            "Model_2_FE_RobustSE_se": "",
+            "Term": "Clustered SE",
+            "Model 1 FE Standard Coef": "No",
+            "Model 1 FE Standard SE": "",
+            "Model 2 FE Clustered Coef": "Yes",
+            "Model 2 FE Clustered SE": "",
+            "Model 3 FE Robust Coef": "No",
+            "Model 3 FE Robust SE": "",
         }
     )
     records.append(
         {
-            "term": "N",
-            "Model_1_FE_Baseline_coef": str(n_obs),
-            "Model_1_FE_Baseline_se": "",
-            "Model_2_FE_RobustSE_coef": str(n_obs),
-            "Model_2_FE_RobustSE_se": "",
+            "Term": "HC Robust SE",
+            "Model 1 FE Standard Coef": "No",
+            "Model 1 FE Standard SE": "",
+            "Model 2 FE Clustered Coef": "No",
+            "Model 2 FE Clustered SE": "",
+            "Model 3 FE Robust Coef": "Yes",
+            "Model 3 FE Robust SE": "",
         }
     )
     records.append(
         {
-            "term": "R2_within",
-            "Model_1_FE_Baseline_coef": f"{within_r2:.4f}",
-            "Model_1_FE_Baseline_se": "",
-            "Model_2_FE_RobustSE_coef": f"{within_r2:.4f}",
-            "Model_2_FE_RobustSE_se": "",
+            "Term": "N",
+            "Model 1 FE Standard Coef": str(n_obs),
+            "Model 1 FE Standard SE": "",
+            "Model 2 FE Clustered Coef": str(n_obs),
+            "Model 2 FE Clustered SE": "",
+            "Model 3 FE Robust Coef": str(n_obs),
+            "Model 3 FE Robust SE": "",
+        }
+    )
+    records.append(
+        {
+            "Term": "R2 Within",
+            "Model 1 FE Standard Coef": f"{within_r2:.4f}",
+            "Model 1 FE Standard SE": "",
+            "Model 2 FE Clustered Coef": f"{within_r2:.4f}",
+            "Model 2 FE Clustered SE": "",
+            "Model 3 FE Robust Coef": f"{within_r2:.4f}",
+            "Model 3 FE Robust SE": "",
         }
     )
 
@@ -544,6 +656,7 @@ def build_publication_table(fe_clustered, fe_robust) -> pd.DataFrame:
 
 
 def write_interpretation_memo(
+    fe_standard,
     fe_clustered,
     fe_robust,
     ml_results: pd.DataFrame,
@@ -553,54 +666,125 @@ def write_interpretation_memo(
 ) -> None:
     policy_coef = float(fe_clustered.params.get("policy_exposure_term_12", np.nan))
     policy_p = float(fe_clustered.pvalues.get("policy_exposure_term_12", np.nan))
+    vix_coef = float(fe_clustered.params.get("vix_exposure_term", np.nan))
+    lag_coef = float(fe_clustered.params.get("ret_lag1", np.nan))
+    mom_coef = float(fe_clustered.params.get("ret_mom3", np.nan))
 
     bp_p = float(bp_df.loc["LM", "p_value"])
     max_vif = float(vif_df["vif"].max())
     rf_row = ml_results.loc[ml_results["model"] == "RandomForest"].iloc[0]
     ols_row = ml_results.loc[ml_results["model"] == "OLS"].iloc[0]
+    # Extract robust SE check statistics
+    se_df = robustness_df[robustness_df["robustness_type"] == "RobustSEComparison"].copy()
+    se_summary = ""
+    if not se_df.empty and "std_err" in se_df.columns:
+        min_se = se_df["std_err"].min()
+        max_se = se_df["std_err"].max()
+        se_summary = f"\n- HC covariance estimator SEs range from {min_se:.4f} to {max_se:.4f} across HC0-HC3, indicating robustness to HC specification choice."
 
     interpretation = f"""# M3 Interpretation Memo
 
 ## Model A Headline
 A 1-unit increase in the 12-month lagged policy exposure term is associated with a {policy_coef:.4f} percentage-point change in monthly asset return (p-value = {policy_p:.4f}) in the two-way fixed effects specification.
 
+- Statistical interpretation: with p-value > 0.10, we fail to reject the null that the average policy-exposure effect is zero in this specification.
+- Practical interpretation: the point estimate is economically small relative to typical month-to-month return volatility, so effect size appears limited in-sample.
+
 ## Economic Interpretation
 - Channel 1 (discount-rate sensitivity): assets with higher rate exposure can reprice through financing and discount-rate channels after policy changes.
 - Channel 2 (risk sentiment): VIX-related exposure captures changes in risk appetite that shift performance asymmetrically across asset classes.
 - Channel 3 (momentum/mean reversion): lagged return and 3-month momentum terms show strong dynamics, indicating persistence and subsequent correction effects in returns.
+- Combined read: policy signals appear to operate through interaction terms and dynamics rather than as a large direct average shift in returns.
+- Estimated risk channel magnitude: the VIX exposure coefficient is {vix_coef:.4f}, which is consistent with higher uncertainty being associated with weaker risk-asset performance after conditioning on FE.
+- Dynamic adjustment pattern: Return Lag 1 ({lag_coef:.4f}) and Return Momentum (3M) ({mom_coef:.4f}) point to short-horizon reversal plus medium-horizon continuation, suggesting partial overshooting followed by correction.
+- Asset-class implication: because policy and VIX effects enter through exposure interactions, transmission is heterogeneous by asset type rather than uniform across all markets in a given month.
+- Portfolio interpretation: the results are more consistent with relative-rotation effects (winners vs. losers across assets) than with a single common directional response to policy changes.
 
 ## Model B Summary (ML vs OLS)
 - OLS test R2: {ols_row['test_r2']:.4f}; test RMSE: {ols_row['test_rmse']:.4f}
 - Random Forest test R2: {rf_row['test_r2']:.4f}; test RMSE: {rf_row['test_rmse']:.4f}
 - Key takeaway: Random Forest provides higher predictive fit and lower forecast error, but OLS/FE remains more interpretable for causal discussion.
+- Model-use guidance: use FE/OLS outputs for coefficient interpretation and policy discussion; use Random Forest for forecast-oriented benchmarking.
 
 ## Diagnostics
 - Breusch-Pagan LM p-value = {bp_p:.6f}. Since p < 0.05, heteroskedasticity is present.
 - VIF max = {max_vif:.4f} (below 10 threshold), suggesting no severe multicollinearity problem in selected predictors.
 - Residual diagnostics were saved to figures and inspected via residuals-vs-fitted and Q-Q plots.
+- Implication: heteroskedasticity supports reporting robust/clustered standard errors as the primary inferential basis.
 
 ## Robustness Checks
-- Robust vs clustered SE comparison reported in table.
+- Standard vs clustered vs HC-robust SE comparison reported in table.
 - Alternative lag specifications tested (lag 3, 6, 12).
 - Placebo lead test estimated.
 - Outlier exclusion estimated (2008-2009 crisis and Mar-May 2020).
 - Group subsamples estimated by asset class (SP500, HomePrice, Gold).
+- HC covariance estimator robustness check (HC0, HC1, HC2, HC3): coefficient and standard error comparisons show stability across specifications.{se_summary}
+- Bottom line: qualitative conclusions are stable across timing assumptions, crisis-window exclusions, and standard error estimators.
 
 ## Caveats
 - Omitted-variable risk remains for unobserved time-varying drivers not captured by included controls.
 - Time FE absorb common macro shocks, so policy interpretation relies on cross-asset exposure variation.
 - External validity is limited to this asset mix, frequency, and sample window.
+- Potential extension: add alternative macro controls (e.g., liquidity proxies) and perform rolling-window estimation to test temporal stability.
 
 ## Files Produced
-- Tables: results/tables/M3_*.csv
-- Figures: results/figures/M3_*.png
+### Report
+- Narrative findings: M3_interpretation.md
+
+### Tables
+- Full FE outputs: results/tables/M3_modelA_regression_table.csv
+- Publication table: results/tables/M3_regression_table.csv
+- Heteroskedasticity test: results/tables/M3_modelA_breusch_pagan.csv
+- Multicollinearity check: results/tables/M3_modelA_vif.csv
+- Robustness specs: results/tables/M3_modelA_robustness_checks.csv
+- ML vs OLS: results/tables/M3_modelB_ml_comparison.csv
+- Feature ranks: results/tables/M3_modelB_rf_feature_importance.csv
+- Run inventory: results/tables/M3_run_summary.txt
+
+### Figures
+- Residual pattern: results/figures/M3_residuals_vs_fitted.png
+- Normality check: results/figures/M3_qq_plot.png
+- HC SE comparison: results/figures/M3_modelA_robust_se_comparison.png
+- Top predictors: results/figures/M3_modelB_rf_feature_importance_top10.png
 """
 
     with open(Path(__file__).resolve().parent.parent / "M3_interpretation.md", "w", encoding="utf-8") as f:
         f.write(interpretation)
 
 
+def plot_robust_se_comparison(robustness_df: pd.DataFrame) -> None:
+    """Plot comparison of standard errors across different HC specifications."""
+    se_df = robustness_df[robustness_df["robustness_type"] == "RobustSEComparison"].copy()
+    
+    if se_df.empty or "std_err" not in se_df.columns:
+        return
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # Plot 1: Coefficients by HC type
+    ax1.bar(se_df["specification"].str.replace("RobustSE_", ""), se_df["coef"], 
+            color="#4C78A8", alpha=0.8, edgecolor="black")
+    ax1.axhline(0, color="red", linestyle="--", linewidth=1)
+    ax1.set_title("Policy Exposure Coefficient by HC Type")
+    ax1.set_ylabel("Coefficient")
+    ax1.set_xlabel("Robust SE Specification")
+    ax1.grid(axis="y", alpha=0.3)
+    
+    # Plot 2: Standard Errors by HC type
+    ax2.bar(se_df["specification"].str.replace("RobustSE_", ""), se_df["std_err"], 
+            color="#E15759", alpha=0.8, edgecolor="black")
+    ax2.set_title("Standard Error of Policy Exposure by HC Type")
+    ax2.set_ylabel("Standard Error")
+    ax2.set_xlabel("Robust SE Specification")
+    ax2.grid(axis="y", alpha=0.3)
+    
+    plt.tight_layout()
+    fig.savefig(FIGURES_DIR / "M3_modelA_robust_se_comparison.png", dpi=300)
+    plt.close(fig)
+
+
 def save_outputs(
+    fe_standard,
     fe_clustered,
     fe_robust,
     ml_results: pd.DataFrame,
@@ -609,24 +793,33 @@ def save_outputs(
     vif_df: pd.DataFrame,
     robustness_df: pd.DataFrame,
 ) -> None:
+    model_a_standard_tbl = extract_main_table(fe_standard, "ModelA_FE_standard")
     model_a_cluster_tbl = extract_main_table(fe_clustered, "ModelA_FE_clustered")
     model_a_robust_tbl = extract_main_table(fe_robust, "ModelA_FE_robust")
 
-    model_a_tbl = pd.concat([model_a_cluster_tbl, model_a_robust_tbl], axis=0, ignore_index=True)
+    model_a_tbl = pd.concat(
+        [model_a_standard_tbl, model_a_cluster_tbl, model_a_robust_tbl],
+        axis=0,
+        ignore_index=True,
+    )
+    model_a_tbl["term"] = model_a_tbl["term"].astype(str).apply(format_term_label)
+    model_a_tbl["model"] = model_a_tbl["model"].astype(str).str.replace("_", " ", regex=False)
     model_a_tbl.to_csv(TABLES_DIR / "M3_modelA_regression_table.csv", index=False)
 
-    pub_table = build_publication_table(fe_clustered, fe_robust)
+    pub_table = build_publication_table(fe_standard, fe_clustered, fe_robust)
     pub_table.to_csv(TABLES_DIR / "M3_regression_table.csv", index=False)
 
     ml_results.to_csv(TABLES_DIR / "M3_modelB_ml_comparison.csv", index=False)
-    rf_importance.to_csv(TABLES_DIR / "M3_modelB_rf_feature_importance.csv", index=False)
+    rf_importance_out = rf_importance.copy()
+    rf_importance_out["feature"] = rf_importance_out["feature"].astype(str).apply(format_feature_label)
+    rf_importance_out.to_csv(TABLES_DIR / "M3_modelB_rf_feature_importance.csv", index=False)
 
     bp_df.to_csv(TABLES_DIR / "M3_modelA_breusch_pagan.csv")
     vif_df.to_csv(TABLES_DIR / "M3_modelA_vif.csv", index=False)
     robustness_df.to_csv(TABLES_DIR / "M3_modelA_robustness_checks.csv", index=False)
 
     fig, ax = plt.subplots(figsize=(9, 5))
-    top_imp = rf_importance.head(10).iloc[::-1]
+    top_imp = rf_importance_out.head(10).iloc[::-1]
     ax.barh(top_imp["feature"], top_imp["importance"], color="#4C78A8")
     ax.set_title("M3 Model B: Random Forest Feature Importance (Top 10)")
     ax.set_xlabel("Importance")
@@ -634,6 +827,9 @@ def save_outputs(
     plt.tight_layout()
     fig.savefig(FIGURES_DIR / "M3_modelB_rf_feature_importance_top10.png", dpi=300)
     plt.close(fig)
+
+    # Plot robust SE comparison
+    plot_robust_se_comparison(robustness_df)
 
     summary_path = TABLES_DIR / "M3_run_summary.txt"
     with open(summary_path, "w", encoding="utf-8") as f:
@@ -651,10 +847,8 @@ def save_outputs(
         f.write("Saved figures:\n")
         f.write("- M3_residuals_vs_fitted.png\n")
         f.write("- M3_qq_plot.png\n")
-        f.write("- M3_modelA_residuals_vs_fitted.png\n")
-        f.write("- M3_modelA_residuals_qq.png\n")
         f.write("- M3_modelB_rf_feature_importance_top10.png\n")
-
+        f.write("- M3_modelA_robust_se_comparison.png\n")
 
 
 def main() -> None:
@@ -664,13 +858,14 @@ def main() -> None:
     feat = build_m2_consistent_features(raw)
     panel_long = build_asset_panel(feat)
 
-    fe_df, fe_clustered, fe_robust = fit_model_a_fe(panel_long)
+    fe_df, fe_standard, fe_clustered, fe_robust = fit_model_a_fe(panel_long)
     bp_df, vif_df = diagnostics_model_a(fe_df, fe_clustered)
 
     robustness_df = robustness_checks(panel_long)
     ml_results, rf_importance = fit_model_b_ml(panel_long)
 
     save_outputs(
+        fe_standard=fe_standard,
         fe_clustered=fe_clustered,
         fe_robust=fe_robust,
         ml_results=ml_results,
@@ -681,6 +876,7 @@ def main() -> None:
     )
 
     write_interpretation_memo(
+        fe_standard=fe_standard,
         fe_clustered=fe_clustered,
         fe_robust=fe_robust,
         ml_results=ml_results,

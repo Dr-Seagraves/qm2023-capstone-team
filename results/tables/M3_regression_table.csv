@@ -1,10 +1,11 @@
-term,Model_1_FE_Baseline_coef,Model_1_FE_Baseline_se,Model_2_FE_RobustSE_coef,Model_2_FE_RobustSE_se
-policy_exposure_term_12,-0.0029,(0.0068),-0.0029,(0.0763)
-vix_exposure_term,-0.0040,(0.0025),-0.0040,(0.0235)
-ret_lag1,-0.5009***,(0.0006),-0.5009***,(0.0461)
-ret_mom3,1.5032***,(0.0045),1.5032***,(0.0714)
-Entity_FE,Yes,,Yes,
-Time_FE,Yes,,Yes,
-Clustered_SE,Yes,,No (HC robust),
-N,855,,855,
-R2_within,0.4843,,0.4843,
+Term,Model 1 FE Standard Coef,Model 1 FE Standard SE,Model 2 FE Clustered Coef,Model 2 FE Clustered SE,Model 3 FE Robust Coef,Model 3 FE Robust SE
+Policy Exposure (Lag 12),-0.0029,(0.0775),-0.0029,(0.0068),-0.0029,(0.0763)
+VIX Exposure,-0.0040,(0.0173),-0.0040,(0.0025),-0.0040,(0.0235)
+Return Lag 1,-0.5009***,(0.0375),-0.5009***,(0.0006),-0.5009***,(0.0461)
+Return Momentum (3M),1.5032***,(0.0673),1.5032***,(0.0045),1.5032***,(0.0714)
+Entity FE,Yes,,Yes,,Yes,
+Time FE,Yes,,Yes,,Yes,
+Clustered SE,No,,Yes,,No,
+HC Robust SE,No,,No,,Yes,
+N,855,,855,,855,
+R2 Within,0.4843,,0.4843,,0.4843,
