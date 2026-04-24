@@ -46,7 +46,7 @@ A 1-unit increase in the 12-month lagged policy exposure term is associated with
 
 ## Files Produced
 ### Report
-- Narrative findings: M3_interpretation.md
+- Narrative findings: results/reports/M3_interpretation.md
 
 ### Tables
 - Full FE outputs: results/tables/M3_modelA_regression_table.csv

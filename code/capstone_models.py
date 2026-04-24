@@ -729,7 +729,7 @@ A 1-unit increase in the 12-month lagged policy exposure term is associated with
 
 ## Files Produced
 ### Report
-- Narrative findings: M3_interpretation.md
+- Narrative findings: results/reports/M3_interpretation.md
 
 ### Tables
 - Full FE outputs: results/tables/M3_modelA_regression_table.csv
@@ -748,7 +748,7 @@ A 1-unit increase in the 12-month lagged policy exposure term is associated with
 - Top predictors: results/figures/M3_modelB_rf_feature_importance_top10.png
 """
 
-    with open(Path(__file__).resolve().parent.parent / "M3_interpretation.md", "w", encoding="utf-8") as f:
+    with open(REPORTS_DIR / "M3_interpretation.md", "w", encoding="utf-8") as f:
         f.write(interpretation)
 
 
