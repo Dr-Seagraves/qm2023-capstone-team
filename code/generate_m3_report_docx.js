@@ -20,7 +20,7 @@ const {
 const ROOT = path.resolve(__dirname, '..');
 const FIGURES = path.join(ROOT, 'results', 'figures');
 const TABLES = path.join(ROOT, 'results', 'tables');
-const OUTPUT = path.join(ROOT, 'results', 'reports', 'M3_cross_asset_uncertainty_report.docx');
+const OUTPUT = path.join(ROOT, 'results', 'reports', 'M4_final_memo.docx');
 
 function readCsv(filePath) {
   const lines = fs.readFileSync(filePath, 'utf8').trim().split(/\r?\n/);
@@ -49,9 +49,9 @@ function para(children, options = {}) {
 
 function heading(text, level = HeadingLevel.HEADING_1, pageBreakBefore = false) {
   return new Paragraph({
-    heading: level,
+    // Use a styled normal paragraph instead of HeadingLevel to avoid Word's collapsible dropdown UI.
     pageBreakBefore,
-    children: [textRun(text, { bold: true })],
+    children: [textRun(text, { bold: true, size: 30 })],
     spacing: { before: 180, after: 120 },
   });
 }
@@ -114,7 +114,9 @@ function formatNumber(value, digits = 3) {
   return parsed.toFixed(digits);
 }
 
-const regressionRows = readCsv(path.join(TABLES, 'M3_regression_table.csv')).slice(0, 4);
+const regressionRows = readCsv(path.join(TABLES, 'M3_modelA_regression_table.csv'))
+  .filter((row) => row.model === 'ModelA FE clustered')
+  .slice(0, 4);
 const driverTable = simpleTable(
   ['Driver', 'Observed relationship', 'Interpretation'],
   [
@@ -193,19 +195,19 @@ const doc = new Document({
           alignment: AlignmentType.CENTER,
           spacing: { before: 1200, after: 180 },
         }),
-        para([textRun('Evidence from the Federal Funds Rate, VIX, and a monthly multi-asset panel', { size: 24 })], {
+        para([textRun('Evidence from a monthly multi-asset macro-financial panel', { size: 24 })], {
           alignment: AlignmentType.CENTER,
           spacing: { after: 280 },
         }),
         para([textRun('QM 2023 Capstone Project', { size: 22 })], { alignment: AlignmentType.CENTER, spacing: { after: 80 } }),
         para([textRun('Prepared from the project’s M2 and M3 results', { size: 20, italics: true })], { alignment: AlignmentType.CENTER, spacing: { after: 420 } }),
-        para([textRun('Research question', { bold: true }), textRun(': What is driving the divergence between asset classes, and how well can macroeconomic variables predict relative performance? The report’s central finding is that the strongest signals are not a single contemporaneous policy rate effect, but delayed monetary transmission and market uncertainty. In the exploratory work, VIX is the strongest bivariate correlate of divergence, while the Fed Funds Rate matters most at a 12-month lag. In the fixed-effects model, the average policy coefficient is small, but the broader pattern still points to FFR and VIX as the key economic drivers of cross-asset uncertainty.')], { spacing: { after: 180 } }),
+        para([textRun('Research question', { bold: true }), textRun(': What is driving the divergence between asset classes, and how well can macroeconomic variables predict relative performance? The report is designed to identify the strongest drivers of cross-asset uncertainty using exploratory evidence and fixed-effects modeling, then interpret those drivers through timing, heterogeneity, and robustness checks.')], { spacing: { after: 180 } }),
         para([textRun('This document synthesizes the exploratory correlations, lagged patterns, group heterogeneity, and the final fixed-effects / random-forest benchmarks in a figure-forward format so the interpretation stays anchored to the visuals.', { size: 22 })], { spacing: { after: 180 } }),
         heading('Executive Summary', HeadingLevel.HEADING_1, true),
         para([textRun('The cleanest read from the project is that uncertainty widens the spread between asset classes, while policy works through time-lagged channels rather than a large same-month effect. The exploratory heatmap shows VIX as the strongest correlate of the divergence index, and the lag plot shows the 12-month Fed Funds relationship becoming more informative than the contemporaneous rate. That combination suggests the system responds to both market stress and delayed policy transmission.', { size: 22 })]),
         para([textRun('The final M3 fixed-effects specification reinforces that interpretation. The lagged policy term is economically small and statistically insignificant on average, while the VIX exposure term is also small after conditioning on fixed effects. That does not mean the variables are irrelevant; it means the average linear coefficient is weak once time effects, asset effects, and return dynamics are all controlled. The behavior is therefore better described as heterogeneous and regime-sensitive than as a single common slope.', { size: 22 })]),
         para([textRun('A secondary conclusion is that predictive accuracy and interpretability point in different directions. Random Forest slightly outperforms OLS on the held-out test set, but the fixed-effects model is the better vehicle for economic interpretation. In other words, the report uses the machine-learning benchmark as a predictive check, not as the final causal story.', { size: 22 })]),
-        heading('Research Design and Key Drivers', HeadingLevel.HEADING_1, true),
+        heading('Research Design and Key Drivers', HeadingLevel.HEADING_1, false),
         para([textRun('The panel combines monthly data for stocks, housing, gold, and bitcoin with macro-financial controls such as the Federal Funds Rate, VIX, BBB spreads, consumer sentiment, inflation, and policy uncertainty. The project’s divergence measure captures how far the asset classes move away from one another over time, which makes it a direct proxy for cross-asset uncertainty and dispersion.', { size: 22 })]),
         para([textRun('The table below summarizes the driver relationships that shaped the final specification. VIX stands out as the most direct uncertainty proxy, while the Fed Funds Rate becomes most informative only after a delay. Credit stress and sentiment move in the expected directions as well, but the report focuses on FFR and VIX because they anchor the policy and uncertainty channels that survive across the EDA and M3 stages.', { size: 22 })]),
         driverTable,
