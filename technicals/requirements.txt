@@ -9,3 +9,4 @@ seaborn
 statsmodels
 linearmodels
 scikit-learn
+python-docx

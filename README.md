@@ -12,14 +12,15 @@ Semester-long capstone for Statistics II: Data Analytics.
 
 ## Project Structure
 
-- **code/** — Python scripts and the M2 EDA notebook. Use `config_paths.py` for paths.
+- **code/** — Data engineering, EDA notebooks, and modeling scripts. Use `config_paths.py` for paths.
 - **data/raw/** — Original data (read-only)
 - **data/processed/** — Intermediate cleaning outputs
 - **data/final/** — M1 output: analysis-ready panel
-- **results/figures/** — Visualizations
-- **results/tables/** — Regression tables, summary stats
-- **results/reports/** — Milestone memos and summary markdowns
-- **tests/** — Autograding test suite
+- **results/figures/** — Exploratory and diagnostic visualizations
+- **results/tables/** — Regression tables, feature importance, summary stats
+- **results/reports/** — Milestone memos, interpretative writing, and M4 Final Memo (.docx)
+- **technicals/** — Requirements and dependency locking
+- **agent skills/** — Helper tools and automation configurations
 
 Run `python code/config_paths.py` to verify paths.
 
@@ -52,25 +53,33 @@ What is driving the divergence between different asset classes (stocks, real est
 ```
 qm2023-capstone-team/
 ├── AI_AUDIT_APPENDIX.md         # Audit documentation for AI-assisted work
-├── README.md                     # This file
-├── code/                         # Data processing and analysis scripts
-│   ├── capstone_eda.ipynb        # M2 exploratory data analysis notebook
-│   ├── config_paths.py           # Centralized path configuration
+├── README.md                    # This file
+├── code/                        # Data processing and analysis scripts
+│   ├── capstone_eda.ipynb       # M2 exploratory data analysis notebook
+│   ├── capstone_models.py       # M3 econometric models and ML comparison
+│   ├── config_paths.py          # Centralized path configuration
 │   ├── fetch_all_fred_economic_data.py  # FRED economic data retrieval
-│   ├── fetch_asset_prices.py     # Asset price data collection
-│   ├── clean_and_merge.py        # Data cleaning and merging pipeline
-│   └── __pycache__/
-├── data/                         # Data storage
-│   ├── raw/                      # Original data (read-only)
-│   ├── processed/                # Cleaned intermediate datasets
-│   └── final/                    # Analysis-ready merged panel
-├── results/                      # Output directory
-│   ├── figures/                  # Visualizations and plots
-│   ├── tables/                   # Regression tables and summary statistics
-│   └── reports/                  # Milestone memos and analysis reports
+│   ├── fetch_asset_prices.py    # Asset price data collection
+│   ├── clean_and_merge.py       # Data cleaning and merging pipeline
+│   └── generate_m3_report_docx.js # Node generation script
+├── data/                        # Data storage
+│   ├── raw/                     # Original datasets (read-only)
+│   ├── processed/               # Cleaned intermediate datasets
+│   └── final/                   # Analysis-ready datasets
+│       ├── data_dictionary.md   
+│       └── merged_analysis_panel.csv
+├── results/                     # Output directory
+│   ├── figures/                 # Visualizations and plots
+│   ├── tables/                  # Regression tables and summaries
+│   └── reports/                 # Project milestone documents
 │       ├── M1_data_quality_report.md
-│       └── M2_EDA_summary.md
-└── tests/                        # Autograding test suite
+│       ├── M2_EDA_summary.md
+│       ├── M3_interpretation.md
+│       └── M4_final_memo.docx
+├── technicals/                  # Dependencies
+│   ├── requirements.txt
+│   └── skills-lock.json
+└── agent skills/                # Provided extensions & tasks
 ```
 
 ## How to Run

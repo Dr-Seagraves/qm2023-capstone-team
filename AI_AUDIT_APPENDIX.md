@@ -10,6 +10,7 @@
 4. **Task 4:** EDA Notebook Generation — Building and iteratively refining `capstone_eda.ipynb` with 8 required M2 visualizations
 5. **Task 5:** Model Script Generation — Creating and refining `code/capstone_models.py` for Milestone 3 models, diagnostics, robustness checks, and output exports
 6. **Task 6:** M3 Interpretation Generation — Creating and iteratively improving `M3_interpretation.md` with model interpretation, diagnostics, robustness summary, and finalized files-produced documentation
+7. **Task 7:** M4 Final Memo Generation — Drafting the final report and natively formatting it as a cohesive `.docx` file
 
 ## Key Prompts by Task
 
@@ -45,6 +46,8 @@
 2. "write a super short explanation of what each item is in the files produced section"
 3. "keep them seperated by type and maybe add the description before or after-- its not super noticable"
 
+### Task 7: M4 Final Memo Generation
+1. "draft a final report referencing the instructions file and using your docx skillset"
 
 ## Output Summary
 
@@ -165,6 +168,13 @@
   - Added ultra-short per-item descriptions
   - Improved scanability/format clarity while keeping section headings intact
 
+### Task 7: M4 Final Memo Generation
+
+**Generated and formatted `results/reports/M4_final_memo.docx`:**
+- Extracted and compiled scattered Markdown notes, CSV regression tables, and PNG plots into a cohesive document
+- Added a full Results section with interpretation text and table integration
+- Added AI Audit and References sections natively to the Word document using the python-docx library
+- Formatted tables, headings, and images directly in the binary format without manual Word intervention
 
 ---
 
@@ -304,6 +314,18 @@
 - Reorganized file inventory by output type and added brief per-item explanations
 - Tightened formatting for cleaner section flow without changing required headings
 
+### Task 7: M4 Final Memo Generation
+
+**Verify:**
+- `results/reports/M4_final_memo.docx` was successfully formatted, opening correctly with all tables and figures embedded natively.
+
+**Critique:**
+- Initial attempt tried generating python scripts which were needlessly complex for a single-pass document injection.
+- Python `docx` library had minor styling limitations (e.g., `Table Grid` and `List Bullet` missing in template) that required iteration.
+
+**Modify:**
+- Dropped the script-based approach for direct python execution and local cleanup.
+- Removed strict template style names where missing and injected standard formatting to force compliance natively.
 
 ---
 
@@ -344,6 +366,11 @@
 - Organizing artifact inventories for readability and auditability
 - Iteratively improving technical prose while preserving required section structure
 
+**Task 7 - M4 Final Memo Generation:**
+- Utilizing python-docx for native XML manipulation of Word files
+- Injecting pandas DataFrames natively as Word tables
+- Orchestrating automated layout flows over multiple document sections
+
 ### What Did AI Get Wrong or Require Correction?
 
 **Task 1:**
@@ -374,3 +401,6 @@
 **Task 6:**
 - First interpretation draft was too terse and required more practical context around coefficient meaning
 - Files-produced list was initially present but not visually prominent enough for quick grading/audit
+
+**Task 7:**
+- Initial attempt to use standard Word styles (`List Bullet` and `Table Grid`) failed due to missing definitions inside the default template we appended to. Required falling back to standard styles and dropping hardcoded configurations.
